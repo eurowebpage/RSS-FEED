@@ -1,0 +1,48 @@
+<?php
+$data = file_get_contents('g1.json');
+   
+// function for sorting by date
+function date_compare($a, $b)
+{
+    $t1 = strtotime($a['published']);
+    $t2 = strtotime($b['published']);
+    return $t2 - $t1;
+}    
+// add any users I want
+$user_array = array('eurowebpage');
+$feed_array = array();
+// loop through my users
+foreach($user_array as $user)
+{
+// pull the RSS feeds
+$rss_feed = 'https://github.com/' . $user . '.atom';
+$github_rss = file_get_contents($rss_feed);
+$github_object = simplexml_load_string($github_rss);
+foreach($github_object->entry as $entry)
+{
+// establish local values, in case I want to do something else
+$id = $entry->id->__toString();
+$published = $entry->published->__toString();
+$link = $entry->link["href"]->__toString();
+$title = $entry->title->__toString();
+$author_name = $entry->author->name->__toString();
+$author_url = $entry->author->uri->__toString();
+// create an array
+$item = array();
+$item['id'] = $id;
+$item['published'] = $published;
+$item['title'] = $title;
+$item['link'] = $link;
+$item['author_name'] = $author_name;
+$item['author_url'] = $author_url;
+// add the individual entry
+array_push($feed_array,$item);
+}
+}
+// sort the collection of feeds
+usort($feed_array, 'date_compare');
+// publish as json
+$feed_json = json_encode($feed_array);
+                
+echo $feed_json;
+?>
