@@ -1,5 +1,4 @@
 <?php
-$data = file_get_contents('g1.json');
    
 // function for sorting by date
 function date_compare($a, $b)
